@@ -2,5 +2,8 @@ import React from 'react';
 
 
 export function App() {
-    return <h1>Hello World</h1>
+
+    throw new Error('erro');
+
+    return <h1>Hello reactjs</h1>
 }
