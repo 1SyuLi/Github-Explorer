@@ -1,40 +1,54 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const ReactrefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
-
-const isdevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 module.exports = {
-    mode: isdevelopment ? 'development' : 'production',
-    devtool: isdevelopment ? 'eval-source-map' : 'source-map',
-    entry: path.resolve(__dirname, 'src', 'index.jsx'),
+    mode: isDevelopment ? "development" : "production",
+    entry: path.resolve(__dirname, "src", "index.jsx"),
+    devtool: isDevelopment ? "eval-source-map" : "source-map",
     output: {
-        path: path.resolve(__dirname, 'dist'),
-        filename: 'bundle.js'
+        path: path.resolve(__dirname, "dist"),
+        filename: "bundle.js",
     },
     resolve: {
-        extensions: ['.js', '.jsx']
+        extensions: [".js", ".jsx"],
     },
     devServer: {
-        static: path.resolve(__dirname, 'public')
+        static: {
+            directory: path.join(__dirname, "public"),
+        },
+        hot: true,
     },
     plugins: [
+        isDevelopment && new ReactrefreshWebpackPlugin(),
         new HtmlWebpackPlugin({
-            template: path.resolve(__dirname, 'public', 'index.html'),
-        })
-    ],
+            template: path.resolve(__dirname, "public", "index.html"),
+        }),
+    ].filter(Boolean),
     module: {
         rules: [
             {
                 test: /\.jsx$/,
                 exclude: /node_modules/,
-                use: 'babel-loader',
+                use: [
+                    {
+                        loader: require.resolve("babel-loader"),
+                        options: {
+                            plugins: [
+                                isDevelopment &&
+                                require.resolve("react-refresh/babel"),
+                            ].filter(Boolean),
+                        },
+                    },
+                ],
             },
             {
-                test: /\.scss$/,
+                test: /\.s[ac]ss$/i,
                 exclude: /node_modules/,
-                use: ['style-loader', 'css-loader', 'sass-loader'],
-            }
+                use: ["style-loader", "css-loader", "sass-loader"],
+            },
         ],
-    }
-}
+    },
+};
